@@ -9,7 +9,7 @@ beforeEach(() => seed(testData))
 
 describe('api', () => {
   describe('GET /api/topics', () => {
-    test('status: 200, returns an object with key \'topics\' and value of an array of objects', () => {
+    test('status: 200, returns an object with key \'topics\' with value of an array of objects', () => {
       return request(app)
               .get('/api/topics')
               .expect(200)
@@ -17,14 +17,21 @@ describe('api', () => {
               .then(({ body }) => {
                 const topics = body.topics;
                 expect(topics.length).toBe(3)
-                expect(topics).toEqual(
-                  expect.arrayContaining([
-                    expect.objectContaining({ slug: 'mitch', description: 'The man, the Mitch, the legend' }),
-                    expect.objectContaining({ slug: 'cats', description: 'Not dogs' }),
-                    expect.objectContaining({ slug: 'paper', description: 'what books are made of' })
-                  ]) // NOTE TO REVIEWER: can i use toMatchObject and match type or is it better this way?
-                )
+                expect(topics).toEqual([
+                    { slug: 'mitch', description: 'The man, the Mitch, the legend' },
+                    { slug: 'cats', description: 'Not dogs' },
+                    { slug: 'paper', description: 'what books are made of' }
+                ])
               });
+    });
+
+    test('status: 404, when user tries to GET from misspelt endpoint', () => {
+      return request(app)
+              .get('/api/tciops')
+              .expect(404)
+              .then(({ body }) => {
+                expect(body.message).toBe('Not Found');
+              })
     });
   });
 })
