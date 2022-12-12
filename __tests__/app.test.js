@@ -31,4 +31,40 @@ describe('api', () => {
               })
     });
   });
+
+  describe.only('GET /api/articles', () => {
+    test('status: 200, returns an object with key \'articles\' with value of an array of objects', () => {
+      return request(app)
+              .get('/api/articles')
+              .expect(200)
+              .expect('Content-Type', 'application/json; charset=utf-8')
+              .then(({ body }) => {
+                const articles = body.articles;
+                articles.forEach((article) => {
+                  expect(article).toMatchObject({
+                    author: expect.any(String),
+                    title: expect.any(String),
+                    article_id: expect.any(Number),
+                    topic: expect.any(String),
+                    created_at: expect.any(String),
+                    votes: expect.any(Number),
+                    comment_count: expect.any(String)
+                  });
+                })
+              });
+    });
+
+    test('status: 200, returns an object with key \'articles\' with an array is sorted by date newest-first', () => {
+      return request(app)
+              .get('/api/articles')
+              .expect(200)
+              .expect('Content-Type', 'application/json; charset=utf-8')
+              .then(({ body }) => {
+                const articles = body.articles;
+                expect(articles.length).toBe(5)
+                expect(articles).toBeSortedBy('created_at', { descending : true });
+              });
+    });
+
+  });
 })
