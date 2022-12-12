@@ -1,8 +1,8 @@
-const { selectTopics, selectArticles } = require('../models/db-models');
+const { selectTopics, selectArticles, selectArticleById } = require('../models/db-models');
 
 exports.getTopics = (request, response, next) => {
   selectTopics().then(topicData => {
-    response.send({ topics: topicData })
+    response.status(200).send({ topics: topicData })
   })
   .catch(next);
 }
@@ -12,4 +12,12 @@ exports.getArticles = (request, response, next) => {
     response.status(200).send({ articles: articlesData })
   })
   .catch(next);
+}
+
+exports.getArticleById = (request, response, next) => {
+  const { article_id: articleId } = request.params;
+  selectArticleById(articleId).then(articleData => {
+    response.status(200).send({ article : articleData })
+  })
+  .catch(next)
 }

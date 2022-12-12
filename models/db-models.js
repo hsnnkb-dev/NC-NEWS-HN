@@ -15,3 +15,11 @@ exports.selectArticles = () => {
   `;
   return db.query(queryString).then(({ rows }) => rows);
 }
+
+exports.selectArticleById = (articleId) => {
+  const queryString =  `
+    SELECT * FROM articles
+    WHERE article_id = $1
+  `
+  return db.query(queryString, [articleId]).then(({ rows }) => (!rows[0]) ? Promise.reject() : rows );
+}
