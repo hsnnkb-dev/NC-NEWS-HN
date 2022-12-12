@@ -61,17 +61,10 @@ describe('api', () => {
               .expect('Content-Type', 'application/json; charset=utf-8')
               .then(({ body }) => {
                 const articles = body.articles;
+                expect(articles.length).toBe(5)
                 expect(articles).toBeSortedBy('created_at', { descending : true });
               });
     });
 
-    test('status: 404, when user tries to GET from misspelt endpoint', () => {
-      return request(app)
-              .get('/api/acletris')
-              .expect(404)
-              .then(({ body }) => {
-                expect(body.message).toBe('Not Found');
-              })
-    });
   });
 })
