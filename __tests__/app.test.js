@@ -16,12 +16,9 @@ describe('api', () => {
               .expect('Content-Type', 'application/json; charset=utf-8')
               .then(({ body }) => {
                 const topics = body.topics;
-                expect(topics.length).toBe(3)
-                expect(topics).toEqual([
-                    { slug: 'mitch', description: 'The man, the Mitch, the legend' },
-                    { slug: 'cats', description: 'Not dogs' },
-                    { slug: 'paper', description: 'what books are made of' }
-                ])
+                topics.forEach((topic) => {
+                  expect(topic).toMatchObject({slug: expect.any(String), description: expect.any(String)});
+                })
               });
     });
 
