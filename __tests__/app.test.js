@@ -119,6 +119,7 @@ describe('api', () => {
                 expect(comments.length).toBe(2);
                 comments.forEach((comment) => {
                   expect(comment).toMatchObject({
+                    comment_id: expect.any(Number),
                     body: expect.any(String),
                     votes: expect.any(Number),
                     author: expect.any(String),
