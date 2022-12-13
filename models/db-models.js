@@ -30,5 +30,5 @@ exports.selectCommentsByArticleId = (articleId) => {
     WHERE article_id = $1
     ORDER BY created_at DESC
   `;
-  return db.query(queryString, [articleId]).then(({ rows }) => (!rows[0]) ? Promise.reject() : rows );
+  return db.query(queryString, [articleId]).then(({ rows }) => rows);
 }

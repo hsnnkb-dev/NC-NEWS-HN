@@ -108,7 +108,7 @@ describe('api', () => {
     });
   });
 
-  describe.only('GET /api/articles/:article_id/comments', () => {
+  describe('GET /api/articles/:article_id/comments', () => {
     test('status: 200, returns an object with key \'comments\' with an array of comment objects as the value', () => {
       return request(app)
               .get('/api/articles/3/comments')
@@ -139,6 +139,18 @@ describe('api', () => {
                 expect(comments.length).toBe(11);
                 expect(comments).toBeSortedBy('created_at', { descending : true })
                 })
+    });
+
+    test('status: 200, returns an object with key \'comments\' with an empty array when passed a valid id', () => {
+      return request(app)
+              .get('/api/articles/2/comments')
+              .expect(200)
+              .expect('Content-Type', 'application/json; charset=utf-8')
+              .then(({ body }) => {
+                const comments = body.comments;
+                expect(comments.length).toBe(0);
+                expect(comments).toEqual([]);
+              })
     });
 
     test('status: 400, when sent an article_id of the wrong type', () => {
