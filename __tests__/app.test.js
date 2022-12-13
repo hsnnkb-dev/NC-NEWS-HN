@@ -206,7 +206,7 @@ describe('api', () => {
               });
     });
 
-    test('status: 400, Bad Request comment sent to an article_id that doesn\'t exist', () => {
+    test('status: 404, comment sent to an article_id that doesn\'t exist', () => {
       const newComment = { username: 'saxomaphone', body: '>*^,^,^~~~' } 
       return request(app)
               .post('/api/articles/444444/comments')
