@@ -172,5 +172,72 @@ describe('api', () => {
               });
     });
   });
+
+  describe('POST /api/articles/:article_id/comments', () => {
+    test('status: 201, returns an object with key \'postedComment\' with a comment object as the value', () => {
+      const newComment = { username: 'icellusedkars', body: 'Smell ya later'}   
+      return request(app)
+              .post('/api/articles/2/comments')
+              .expect(201)
+              .expect('Content-Type', 'application/json; charset=utf-8')
+              .send(newComment)
+              .then(({ body }) => {
+                const postedComment = body.postedComment;
+                expect(postedComment.length).toBe(1);
+                expect(postedComment[0]).toMatchObject({
+                  comment_id: expect.any(Number),
+                  body: 'Smell ya later',
+                  votes: expect.any(Number),
+                  author: 'icellusedkars',
+                  article_id: 2,
+                  created_at: expect.any(String),        
+                })
+              })
+    });
+
+    test('status: 400,  comment sent to an article_id of the wrong type', () => {
+      const newComment = { username: 'cowabunga', body: 'Don\'t have a cow, man!'}
+      return request(app)
+              .post('/api/articles/not_an_id/comments')
+              .send(newComment)
+              .expect(400)
+              .then(({ body }) => {
+                expect(body.message).toBe('Bad Request');
+              });
+    });
+
+    test('status: 400, Bad Request comment sent to an article_id that doesn\'t exist', () => {
+      const newComment = { username: 'saxomaphone', body: '>*^,^,^~~~' } 
+      return request(app)
+              .post('/api/articles/444444/comments')
+              .send(newComment)
+              .expect(404)
+              .then(({ body }) => {
+                expect(body.message).toBe('Not Found');
+              });
+    });
+
+    test('status: 400, incorrect data types given for values', () => {
+      const newComment = { username: [1, 2], body: Date.now() } 
+      return request(app)
+              .post('/api/articles/1/comments')
+              .send(newComment)
+              .expect(400)
+              .then(({ body }) => {
+                expect(body.message).toBe('Bad Request');
+              });
+    });
+
+    test('status: 400, malformed request body, empty comment given', () => {
+      const newComment = {} 
+      return request(app)
+              .post('/api/articles/4/comments')
+              .send(newComment)
+              .expect(400)
+              .then(({ body }) => {
+                expect(body.message).toBe('Bad Request');
+              });
+    });
+  });
 });
 

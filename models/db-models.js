@@ -32,3 +32,16 @@ exports.selectCommentsByArticleId = (articleId) => {
   `;
   return db.query(queryString, [articleId]).then(({ rows }) => rows);
 }
+
+exports.insertCommentByArticleId = (articleId, comment) => {
+  const { body, username } = comment;
+  const timestamp = new Date(Date.now()).toISOString();
+  const queryString = `
+    INSERT INTO comments
+      (body, votes, author, article_id, created_at)
+    VALUES
+      ($1, 0, $2, $3, $4)
+    RETURNING *
+  `
+  return db.query(queryString, [body, username, articleId, timestamp]).then(({ rows }) => rows)
+}
