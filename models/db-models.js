@@ -44,3 +44,14 @@ exports.insertCommentByArticleId = (articleId, comment) => {
   `
   return db.query(queryString, [body, username, articleId]).then(({ rows }) => rows)
 }
+
+exports.updateArticleVote = (articleId, increaseVote) => {
+  const queryString = `
+    UPDATE articles
+    SET votes = votes + $1
+    WHERE article_id = $2
+    RETURNING *
+  `;
+  console.log(articleId, increaseVote)
+  return db.query(queryString, [increaseVote, articleId]).then(({ rows }) => rows);
+}

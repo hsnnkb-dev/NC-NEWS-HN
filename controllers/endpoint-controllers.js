@@ -1,4 +1,4 @@
-const { selectTopics, selectArticles, selectArticleById, selectCommentsByArticleId, insertCommentByArticleId } = require('../models/db-models');
+const { selectTopics, selectArticles, selectArticleById, selectCommentsByArticleId, insertCommentByArticleId, updateArticleVote } = require('../models/db-models');
 const { checkArticleIdExists } = require('../models/articles.comments');
 
 exports.getTopics = (request, response, next) => {
@@ -36,5 +36,15 @@ exports.postCommentByArticleId = (request, response, next) => {
   const { article_id: articleId } = request.params;
   insertCommentByArticleId(articleId, comment)
     .then(commentData => response.status(201).send({ postedComment : commentData }))
+    .catch(next)
+}
+
+exports.patchArticleVote = (request, response, next) => {
+  const { inc_votes: increaseVote } = request.body;
+  const { article_id: articleId } = request.params;
+  // const promises = [updateArticleVote(articleId, increaseVote), checkArticleIdExists(articleId)];
+  // Promise.all(promises)
+  updateArticleVote(articleId, increaseVote)
+    .then((articleData) => response.status(200).send({ upvotedArticle : articleData }))
     .catch(next)
 }

@@ -251,5 +251,28 @@ describe('api', () => {
               });
     });
   });
+
+  describe.only('PATCH /api/articles/:article_id', () => {
+    test('status: 200, resolves with an object with key \'updatedArticle\' and a value of an article object', () => {
+      const votes = { inc_votes: 747 };
+      return request(app)
+              .patch('/api/articles/2')
+              .send(votes)
+              .expect(200)
+              .expect('Content-Type', 'application/json; charset=utf-8')
+              .then(({ body }) => {
+                const upvotedArticle = body.upvotedArticle;
+                expect(upvotedArticle[0]).toMatchObject({
+                  article_id: 2,
+                  title: expect.any(String),
+                  topic: expect.any(String),
+                  author: expect.any(String),
+                  body: expect.any(String),
+                  created_at: expect.any(String),
+                  votes: 747}
+                )
+              })
+    })
+  });
 });
 
