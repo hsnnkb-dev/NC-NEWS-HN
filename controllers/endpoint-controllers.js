@@ -34,8 +34,7 @@ exports.getCommentsByArticleId = (request, response, next) => {
 exports.postCommentByArticleId = (request, response, next) => {
   const { body: comment } = request;
   const { article_id: articleId } = request.params;
-  checkArticleIdExists(articleId)
-    .then(() => insertCommentByArticleId(articleId, comment))
+  insertCommentByArticleId(articleId, comment)
     .then(commentData => response.status(201).send({ postedComment : commentData }))
     .catch(next)
 }

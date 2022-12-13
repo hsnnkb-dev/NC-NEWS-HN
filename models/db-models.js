@@ -35,13 +35,12 @@ exports.selectCommentsByArticleId = (articleId) => {
 
 exports.insertCommentByArticleId = (articleId, comment) => {
   const { body, username } = comment;
-  const timestamp = new Date(Date.now()).toISOString();
   const queryString = `
     INSERT INTO comments
-      (body, votes, author, article_id, created_at)
+      (body, votes, author, article_id)
     VALUES
-      ($1, 0, $2, $3, $4)
+      ($1, 0, $2, $3)
     RETURNING *
   `
-  return db.query(queryString, [body, username, articleId, timestamp]).then(({ rows }) => rows)
+  return db.query(queryString, [body, username, articleId]).then(({ rows }) => rows)
 }
