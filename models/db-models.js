@@ -32,3 +32,15 @@ exports.selectCommentsByArticleId = (articleId) => {
   `;
   return db.query(queryString, [articleId]).then(({ rows }) => rows);
 }
+
+exports.insertCommentByArticleId = (articleId, comment) => {
+  const { body, username } = comment;
+  const queryString = `
+    INSERT INTO comments
+      (body, votes, author, article_id)
+    VALUES
+      ($1, 0, $2, $3)
+    RETURNING *
+  `
+  return db.query(queryString, [body, username, articleId]).then(({ rows }) => rows)
+}
