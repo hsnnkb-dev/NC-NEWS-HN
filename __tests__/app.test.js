@@ -17,7 +17,7 @@ describe('api', () => {
                 expect(body.message).toBe('Not Found');
               })
     });
-  })
+  });
 
   describe('GET /api/topics', () => {
     test('status: 200, returns an object with key \'topics\' with value of an array of objects', () => {
@@ -367,7 +367,6 @@ describe('api', () => {
                 })
               })
     });
-  })
-
+  });
 });
 
