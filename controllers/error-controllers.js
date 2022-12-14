@@ -1,6 +1,11 @@
 exports.handle404Errors = (request, response, next) => {
-  
   response.status(404).send({ message: 'Not Found'})
+}
+
+exports.handleCustomErrors = (err, request, response, next) => {
+  (err.status && err.message) ? 
+    response.status(err.status).send({ message: err.message }) :
+    next(err);
 }
 
 exports.handlePsqlErrors = (err, request, response, next) => {

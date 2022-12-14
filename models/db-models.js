@@ -52,5 +52,7 @@ exports.updateArticleVote = (articleId, increaseVote) => {
     WHERE article_id = $2
     RETURNING *
   `;
-  return db.query(queryString, [increaseVote, articleId]).then(({ rows }) => rows);
+  return db.query(queryString, [increaseVote, articleId]).then(({ rows }) => {
+    return (!rows[0]) ? Promise.reject({status: 404, message: 'Not Found'}) : rows;
+  });
 }
