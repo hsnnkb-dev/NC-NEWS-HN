@@ -56,3 +56,8 @@ exports.updateArticleVote = (articleId, increaseVote) => {
     return (!rows[0]) ? Promise.reject({status: 404, message: 'Not Found'}) : rows;
   });
 }
+
+exports.selectUsers = () => {
+  const queryString = `SELECT * FROM users`;
+  return db.query(queryString).then(({ rows }) => rows)
+}

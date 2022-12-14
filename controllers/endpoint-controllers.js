@@ -1,4 +1,12 @@
-const { selectTopics, selectArticles, selectArticleById, selectCommentsByArticleId, insertCommentByArticleId, updateArticleVote } = require('../models/db-models');
+const { 
+  selectTopics, 
+  selectArticles, 
+  selectArticleById, 
+  selectCommentsByArticleId, 
+  insertCommentByArticleId, 
+  updateArticleVote, 
+  selectUsers 
+} = require('../models/db-models');
 const { checkArticleIdExists } = require('../models/articles.comments');
 
 exports.getTopics = (request, response, next) => {
@@ -9,18 +17,16 @@ exports.getTopics = (request, response, next) => {
 }
 
 exports.getArticles = (request, response, next) => {
-  selectArticles().then(articlesData => {
-    response.status(200).send({ articles: articlesData })
-  })
-  .catch(next);
+  selectArticles()
+    .then(articlesData => response.status(200).send({ articles: articlesData }))
+    .catch(next);
 }
 
 exports.getArticleById = (request, response, next) => {
   const { article_id: articleId } = request.params;
-  selectArticleById(articleId).then(articleData => {
-    response.status(200).send({ article : articleData })
-  })
-  .catch(next)
+  selectArticleById(articleId)
+    .then(articleData => response.status(200).send({ article : articleData }))
+    .catch(next)
 }
 
 exports.getCommentsByArticleId = (request, response, next) => {
@@ -44,5 +50,11 @@ exports.patchArticleVote = (request, response, next) => {
   const { article_id: articleId } = request.params;
   updateArticleVote(articleId, increaseVote)
     .then(articleData => response.status(200).send({ upvotedArticle : articleData }))
+    .catch(next)
+}
+
+exports.getUsers = (request, response, next) => {
+  selectUsers()
+    .then(users => response.status(200).send({ users: users }))
     .catch(next)
 }
