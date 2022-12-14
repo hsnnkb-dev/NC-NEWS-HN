@@ -368,5 +368,51 @@ describe('api', () => {
               })
     });
   });
+
+  describe.only('GET /api/articles? (topic, sort_by, order)', () => {
+    test('status: 200, resolves with articles of all topics when passed no topic query', () => {
+      return request(app)
+              .get('/api/articles?')
+              .expect(200)
+              .expect('Content-Type', 'application/json; charset=utf-8')
+              .then(({ body }) => {
+                const articles = body.articles;
+                expect(articles.length).toBe(12);
+                articles.forEach((article) => {
+                  expect(article).toMatchObject({
+                    author: expect.any(String),
+                    title: expect.any(String),
+                    article_id: expect.any(Number),
+                    topic: expect.any(String),
+                    created_at: expect.any(String),
+                    votes: expect.any(Number),
+                    comment_count: expect.any(String)
+                  });
+                })
+              })
+    });
+
+    test.skip('status: 200, resolves with all articles of specified topic', () => {
+      return request(app)
+              .get('/api/articles?topic=mitch')
+              .expect(200)
+              .expect('Content-Type', 'application/json; charset=utf-8')
+              .then(({ body }) => {
+                const articles = body.articles;
+                expect(articles.length).toBe(11);
+                articles.forEach((article) => {
+                  expect(article).toMatchObject({
+                    author: expect.any(String),
+                    title: expect.any(String),
+                    article_id: expect.any(Number),
+                    topic: "mitch",
+                    created_at: expect.any(String),
+                    votes: expect.any(Number),
+                    comment_count: expect.any(String)
+                  });
+                })
+              })
+    });
+  });
 });
 
