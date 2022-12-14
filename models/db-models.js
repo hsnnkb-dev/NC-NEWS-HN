@@ -44,3 +44,15 @@ exports.insertCommentByArticleId = (articleId, comment) => {
   `
   return db.query(queryString, [body, username, articleId]).then(({ rows }) => rows)
 }
+
+exports.updateArticleVote = (articleId, increaseVote) => {
+  const queryString = `
+    UPDATE articles
+    SET votes = votes + $1
+    WHERE article_id = $2
+    RETURNING *
+  `;
+  return db.query(queryString, [increaseVote, articleId]).then(({ rows }) => {
+    return (!rows[0]) ? Promise.reject({status: 404, message: 'Not Found'}) : rows;
+  });
+}
