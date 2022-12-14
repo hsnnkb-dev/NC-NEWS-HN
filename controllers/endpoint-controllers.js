@@ -42,9 +42,8 @@ exports.postCommentByArticleId = (request, response, next) => {
 exports.patchArticleVote = (request, response, next) => {
   const { inc_votes: increaseVote } = request.body;
   const { article_id: articleId } = request.params;
-  // const promises = [updateArticleVote(articleId, increaseVote), checkArticleIdExists(articleId)];
-  // Promise.all(promises)
-  updateArticleVote(articleId, increaseVote)
-    .then((articleData) => response.status(200).send({ upvotedArticle : articleData }))
+  const promises = [updateArticleVote(articleId, increaseVote), checkArticleIdExists(articleId)];
+  Promise.all(promises)
+    .then(([articleData]) => response.status(200).send({ upvotedArticle : articleData }))
     .catch(next)
 }

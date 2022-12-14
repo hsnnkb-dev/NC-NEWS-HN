@@ -52,6 +52,5 @@ exports.updateArticleVote = (articleId, increaseVote) => {
     WHERE article_id = $2
     RETURNING *
   `;
-  console.log(articleId, increaseVote)
   return db.query(queryString, [increaseVote, articleId]).then(({ rows }) => rows);
 }
