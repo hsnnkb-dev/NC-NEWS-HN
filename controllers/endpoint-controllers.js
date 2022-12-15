@@ -18,7 +18,6 @@ exports.getTopics = (request, response, next) => {
 
 exports.getArticles = (request, response, next) => {
   const { topic, sort_by: sortBy, order: orderBy } = request.query;
-  console.log(topic, sortBy, orderBy);
   selectArticles(topic, sortBy, orderBy)
     .then(articlesData => response.status(200).send({ articles: articlesData }))
     .catch(next);

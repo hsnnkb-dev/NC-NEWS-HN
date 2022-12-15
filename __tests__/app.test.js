@@ -369,7 +369,7 @@ describe('api', () => {
     });
   });
 
-  describe.only('GET /api/articles? (topic, sort_by, order)', () => {
+  describe('GET /api/articles? (topic, sort_by, order)', () => {
     test('status: 200, resolves with articles of all topics when passed no topic query', () => {
       return request(app)
               .get('/api/articles?')
@@ -392,7 +392,7 @@ describe('api', () => {
               })
     });
 
-    test.skip('status: 200, resolves with all articles of specified topic', () => {
+    test('status: 200, resolves with all articles of specified topic', () => {
       return request(app)
               .get('/api/articles?topic=mitch')
               .expect(200)
@@ -411,6 +411,104 @@ describe('api', () => {
                     comment_count: expect.any(String)
                   });
                 })
+              })
+    });
+
+    test('status: 200, resolves with an empty array when there are no articles with a valid specified topic', () => {
+      return request(app)
+              .get('/api/articles?topic=paper')
+              .expect(200)
+              .expect('Content-Type', 'application/json; charset=utf-8')
+              .then(({ body }) => {
+                const articles = body.articles;
+                expect(articles.length).toBe(0);
+              })
+    });
+
+    test('status: 200, resolves with an array of articles sorted by title, descending', () => {
+      return request(app)
+              .get('/api/articles?sort_by=title')
+              .expect(200)
+              .expect('Content-Type', 'application/json; charset=utf-8')
+              .then(({ body }) => {
+                const articles = body.articles;
+                expect(articles.length).toBe(12);
+                expect(articles).toBeSortedBy('title', { descending : true })
+              })
+    });
+
+    test('status: 200, resolves with an array of articles sorted by created_at, ascending', () => {
+      return request(app)
+              .get('/api/articles?order=asc')
+              .expect(200)
+              .expect('Content-Type', 'application/json; charset=utf-8')
+              .then(({ body }) => {
+                const articles = body.articles;
+                expect(articles.length).toBe(12);
+                expect(articles).toBeSortedBy('created_at', { ascending : true })
+              })
+    });
+
+    test('status: 200, resolves with an array of articles sorted by votes, ascending, with topic \'mitch\'', () => {
+      return request(app)
+              .get('/api/articles?topic=mitch&sort_by=votes&order=asc')
+              .expect(200)
+              .expect('Content-Type', 'application/json; charset=utf-8')
+              .then(({ body }) => {
+                const articles = body.articles;
+                expect(articles.length).toBe(11);
+                expect(articles).toBeSortedBy('votes', { ascending : true });
+                articles.forEach((article) => {
+                  expect(article).toMatchObject({
+                    author: expect.any(String),
+                    title: expect.any(String),
+                    article_id: expect.any(Number),
+                    topic: "mitch",
+                    created_at: expect.any(String),
+                    votes: expect.any(Number),
+                    comment_count: expect.any(String)
+                  });
+                })
+              })
+    });
+
+    test('status: 400, malformed request topic doesn\'t exist', () => {
+      return request(app)
+              .get('/api/articles?topic=not_a_topic')
+              .expect(400)
+              .then(({ body }) => {
+                const message = body.message;
+                expect(message).toBe('Bad Request');
+              })
+    });
+
+    test('status: 400, malformed request sort_by doesn\'t exist', () => {
+      return request(app)
+              .get('/api/articles?sort_by=not_a_column')
+              .expect(400)
+              .then(({ body }) => {
+                const message = body.message;
+                expect(message).toBe('Bad Request');
+              })
+    });
+
+    test('status: 400, malformed request order doesn\'t exist', () => {
+      return request(app)
+              .get('/api/articles?order=not_an_order')
+              .expect(400)
+              .then(({ body }) => {
+                const message = body.message;
+                expect(message).toBe('Bad Request');
+              })
+    });
+
+    test('status: 400, malformed request, two correct queries and a single query is incorrect', () => {
+      return request(app)
+              .get('/api/articles?topic=mitch&sort_by=not_a_column&order=asc')
+              .expect(400)
+              .then(({ body }) => {
+                const message = body.message;
+                expect(message).toBe('Bad Request');
               })
     });
   });
