@@ -556,5 +556,33 @@ describe('api', () => {
               })
     });
   });
+
+  describe('DELETE /api/comments/:comment_id', () => {
+    test('status: 204, returns no content on success', () => {
+      return request(app)
+              .delete('/api/comments/1')
+              .expect(204);
+    });
+
+    test('status: 400, comment_id is of the wrong type', () => {
+      return request(app)
+              .delete('/api/comments/not_an_id')
+              .expect(400)
+              .then(({ body }) => {
+                const message = body.message;
+                expect(message).toBe('Bad Request')
+              });
+    });
+
+    test('status: 404, comment_id does not exist', () => {
+      return request(app)
+              .delete('/api/comments/809135')
+              .expect(404)
+              .then(({ body }) => {
+                const message = body.message;
+                expect(message).toBe('Not Found')
+              });
+    });
+  });
 });
 
