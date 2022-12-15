@@ -5,7 +5,8 @@ const {
   selectCommentsByArticleId, 
   insertCommentByArticleId, 
   updateArticleVote, 
-  selectUsers 
+  selectUsers,
+  removeCommentById 
 } = require('../models/db-models');
 const { checkArticleIdExists } = require('../models/articles.comments');
 
@@ -58,4 +59,11 @@ exports.getUsers = (request, response, next) => {
   selectUsers()
     .then(users => response.status(200).send({ users: users }))
     .catch(next)
+}
+
+exports.deleteCommentById = (request, response, next) => {
+  const { comment_id : commentId } = request.params;
+  removeCommentById(commentId)
+    .then(() => response.sendStatus(204))
+    .catch(next);
 }
