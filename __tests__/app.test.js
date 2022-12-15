@@ -512,5 +512,49 @@ describe('api', () => {
               })
     });
   });
+
+  describe('GET /api/articles/:article_id (Comment count)', () => {
+    test('status: 200, returns an object with key \'article\' with value of the article object', () => {
+      return request(app)
+              .get('/api/articles/1')
+              .expect(200)
+              .expect('Content-Type', 'application/json; charset=utf-8')
+              .then(({ body }) => {
+                const article = body.article;
+                expect(article.length).toBe(1);
+                expect(article[0]).toMatchObject({
+                  author: expect.any(String),
+                  title: expect.any(String),
+                  article_id: 1,
+                  body: expect.any(String),
+                  topic: expect.any(String),
+                  created_at: expect.any(String),
+                  votes: expect.any(Number),
+                  comment_count: '11'
+                });
+              })
+    });
+
+    test('status: 200, returns an object with key \'article\' with value of the article object when comment_count is 0', () => {
+      return request(app)
+              .get('/api/articles/4')
+              .expect(200)
+              .expect('Content-Type', 'application/json; charset=utf-8')
+              .then(({ body }) => {
+                const article = body.article;
+                expect(article.length).toBe(1);
+                expect(article[0]).toMatchObject({
+                  author: expect.any(String),
+                  title: expect.any(String),
+                  article_id: 4,
+                  body: expect.any(String),
+                  topic: expect.any(String),
+                  created_at: expect.any(String),
+                  votes: expect.any(Number),
+                  comment_count: '0'
+                });
+              })
+    });
+  });
 });
 
