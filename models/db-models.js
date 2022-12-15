@@ -35,8 +35,12 @@ exports.selectArticles = (topic = 'all', sortBy = 'created_at', orderBy = 'desc'
 
 exports.selectArticleById = (articleId) => {
   const queryString =  `
-    SELECT * FROM articles
-    WHERE article_id = $1
+    SELECT articles.author, title, articles.article_id, articles.body, topic, articles.created_at, articles.votes, COUNT(comment_id) AS comment_count 
+    FROM articles
+    LEFT OUTER JOIN comments 
+    ON articles.article_id = comments.article_id
+    WHERE articles.article_id = $1
+    GROUP BY articles.article_id
   `
   return db.query(queryString, [articleId]).then(({ rows }) => (!rows[0]) ? Promise.reject() : rows );
 }
