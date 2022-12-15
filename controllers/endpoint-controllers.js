@@ -17,7 +17,8 @@ exports.getTopics = (request, response, next) => {
 }
 
 exports.getArticles = (request, response, next) => {
-  selectArticles()
+  const { topic, sort_by: sortBy, order: orderBy } = request.query;
+  selectArticles(topic, sortBy, orderBy)
     .then(articlesData => response.status(200).send({ articles: articlesData }))
     .catch(next);
 }

@@ -5,14 +5,31 @@ exports.selectTopics = () => {
   return db.query(queryString).then(({ rows }) => rows)
 }
 
-exports.selectArticles = () => {
-  const queryString = `
+exports.selectArticles = (topic = 'all', sortBy = 'created_at', orderBy = 'desc') => {
+  validTopics = ['mitch', 'cats', 'paper'];
+  validSortByColumns = ['title', 'topic', 'author', 'body', 'created_at', 'votes']
+  let queryString = `
     SELECT articles.author, title, articles.article_id, topic, articles.created_at, articles.votes, COUNT(comment_id) AS comment_count
     FROM articles
     LEFT OUTER JOIN comments on articles.article_id = comments.article_id
-    GROUP BY articles.article_id
-    ORDER BY articles.created_at DESC
   `;
+
+  // Checks if the queries are valid, passes status 400 for Bad Request if any are invalid
+  const isTopicValid = validTopics.includes(topic) || topic === 'all'; 
+  const isSortyByValid = validSortByColumns.includes(sortBy);
+  const isOrderByValid = (orderBy === 'asc' || orderBy === 'desc');
+  if (!isTopicValid || !isSortyByValid || !isOrderByValid) {
+    return Promise.reject({ status : 400, message: 'Bad Request' });
+  }
+
+  // Build up the queryString after passing query validity
+  if (topic !== 'all') { queryString += ` WHERE articles.topic = '${topic}'` }
+  queryString += ` 
+    GROUP BY articles.article_id
+    ORDER BY articles.${sortBy}
+  `;
+  (orderBy === 'asc') ? queryString += ` ASC` : queryString += ` DESC`; 
+
   return db.query(queryString).then(({ rows }) => rows);
 }
 
