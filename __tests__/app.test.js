@@ -606,5 +606,33 @@ describe('api', () => {
               })
     });
   });
+
+  describe('GET /api/users/:username', () => {
+    test('status: 200, returns the correct user', () => {
+      return request(app)
+              .get('/api/users/icellusedkars')
+              .expect(200)
+              .expect('Content-Type', 'application/json; charset=utf-8')
+              .then(({ body }) => {
+                const user = body.user;
+                expect(user.length).toBe(1);
+                expect(user[0]).toMatchObject({
+                  username: "icellusedkars",
+                  avatar_url: expect.any(String),
+                  name: expect.any(String)
+                })
+              })
+    });
+
+    test('status: 400, incorrect username', () => {
+      return request(app)
+              .get('/api/users/214114212')
+              .expect(400)
+              .then(({ body }) => {
+                const message = body.message;
+                expect(message).toBe('Bad Request');
+              })
+    });
+  })
 });
 
