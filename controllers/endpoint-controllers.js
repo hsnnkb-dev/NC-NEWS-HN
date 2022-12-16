@@ -7,7 +7,8 @@ const {
   updateArticleVote, 
   selectUsers,
   removeCommentById,
-  selectUserById
+  selectUserById,
+  updateCommentVote
 } = require('../models/db-models');
 const { checkArticleIdExists } = require('../models/articles.comments');
 const { readEndpoints } = require('../models/file-models');

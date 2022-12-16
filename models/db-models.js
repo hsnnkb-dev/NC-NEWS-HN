@@ -103,3 +103,15 @@ exports.selectUserById = (username) => {
     return (!rows[0]) ? Promise.reject({status: 400, message: 'Bad Request'}) : rows
   });
 }
+
+exports.updateCommentVote = (commentId, increaseVote) => {
+  const queryString = `
+    UPDATE comments
+    SET votes = votes + $1
+    WHERE comment_id = $2
+    RETURNING *
+  `
+  return db.query(queryString, [increaseVote, commentId]).then(({ rows }) => {
+    return (!rows[0]) ? Promise.reject({status: 404, message: 'Not Found'}) : rows 
+  })
+}
