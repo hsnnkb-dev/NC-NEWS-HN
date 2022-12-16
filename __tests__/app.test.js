@@ -635,6 +635,94 @@ describe('api', () => {
     });
   });
 
-  describe.skip('', () => {})
+  describe('PATCH /api/comments/:comment_id', () => {
+    test('status: 200, returns the updated comment', () => {
+      const newVotes = { inc_votes: 200 }
+      return request(app)
+              .patch('/api/comments/2')
+              .send(newVotes)
+              .expect(200)
+              .then(({ body }) => {
+                const updatedComment = body.updatedComment;
+                expect(updatedComment.length).toBe(1);
+                expect(updatedComment[0]).toMatchObject({
+                  comment_id: 2,
+                  body: expect.any(String),
+                  votes: 214,
+                  author: expect.any(String),
+                  article_id: expect.any(Number),
+                  created_at: expect.any(String),
+                })
+              })
+    });
+
+    test('status: 200, decrements the vote count', () => {
+      const newVotes = { inc_votes: -200 }
+      return request(app)
+              .patch('/api/comments/2')
+              .send(newVotes)
+              .expect(200)
+              .then(({ body }) => {
+                const updatedComment = body.updatedComment;
+                expect(updatedComment.length).toBe(1);
+                expect(updatedComment[0]).toMatchObject({
+                  comment_id: 2,
+                  body: expect.any(String),
+                  votes: -186,
+                  author: expect.any(String),
+                  article_id: expect.any(Number),
+                  created_at: expect.any(String),
+                })
+              })
+    });
+
+    test('status: 400, comment_id is of wrong type', () => {
+      const newVotes = { inc_votes: 14 }
+      return request(app)
+              .patch('/api/comments/not_an_id')
+              .send(newVotes)
+              .expect(400)
+              .then(({ body }) => {
+                const message = body.message;
+                expect(message).toBe('Bad Request')
+              })
+    });
+
+    test('status: 400, malformed request body', () => {
+      const newVotes = {};
+      return request(app)
+              .patch('/api/comments/not_an_id')
+              .send(newVotes)
+              .expect(400)
+              .then(({ body }) => {
+                const message = body.message;
+                expect(message).toBe('Bad Request')
+              })
+    });
+
+    test('status: 400, request body has wrong type', () => {
+      const newVotes = { inc_votes: "incorrect_type"};
+      return request(app)
+              .patch('/api/comments/not_an_id')
+              .send(newVotes)
+              .expect(400)
+              .then(({ body }) => {
+                const message = body.message;
+                expect(message).toBe('Bad Request')
+              })
+    });
+
+    test('status: 404, comment_id is non-existent', () => {
+      const newVotes = { inc_votes: 14 }
+      return request(app)
+              .patch('/api/comments/809135')
+              .send(newVotes)
+              .expect(404)
+              .then(({ body }) => {
+                const message = body.message;
+                expect(message).toBe('Not Found')
+              })
+    });
+  });
 });
 
