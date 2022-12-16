@@ -6,10 +6,12 @@ const {
   insertCommentByArticleId, 
   updateArticleVote, 
   selectUsers,
-  removeCommentById 
+  removeCommentById,
+  selectUserById
 } = require('../models/db-models');
 const { checkArticleIdExists } = require('../models/articles.comments');
-const { readEndpoints } = require('../models/file-models')
+const { readEndpoints } = require('../models/file-models');
+const { userData } = require('../db/data/test-data');
 
 exports.getTopics = (request, response, next) => {
   selectTopics().then(topicData => {
@@ -73,4 +75,11 @@ exports.getEndpointInfo = (request, response, next) => {
   readEndpoints()
     .then(availableEndpoints => response.status(200).send({ availableEndpoints }))
     .catch(next);
+}
+
+exports.getUserById = (request, response, next) => {
+  const { username } = request.params;
+  selectUserById(username)
+    .then((userData) => response.status(200).send({ user: userData }))
+    .catch(next)
 }

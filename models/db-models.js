@@ -93,3 +93,13 @@ exports.removeCommentById = (commentId) => {
     if (!rowCount) return Promise.reject({ status: 404, message: 'Not Found' });
   });
 }
+
+exports.selectUserById = (username) => {
+  const queryString = `
+    SELECT * FROM users
+    WHERE username = $1
+  `
+  return db.query(queryString, [username]).then(({ rows }) => {
+    return (!rows[0]) ? Promise.reject({status: 400, message: 'Bad Request'}) : rows
+  });
+}
