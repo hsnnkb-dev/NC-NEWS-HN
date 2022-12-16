@@ -83,3 +83,11 @@ exports.getUserById = (request, response, next) => {
     .then((userData) => response.status(200).send({ user: userData }))
     .catch(next)
 }
+
+exports.patchCommentVote = (request, response, next) => {
+  const { comment_id : commentId } = request.params;
+  const { inc_votes : increaseVote } = request.body;
+  updateCommentVote(commentId, increaseVote)
+    .then((commentData) => response.status(200).send({ updatedComment : commentData }))
+    .catch(next);
+}

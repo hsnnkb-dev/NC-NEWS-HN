@@ -633,6 +633,8 @@ describe('api', () => {
                 expect(message).toBe('Bad Request');
               })
     });
-  })
+  });
+
+  describe.skip('', () => {})
 });
 
