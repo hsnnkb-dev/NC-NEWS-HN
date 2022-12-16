@@ -11,7 +11,6 @@ Hosted using Render and Elephant SQL.
 A functional and (almost) complete backend API that simulates a Reddit-like small scale server. Exciting features such as viewing (topics, articles, comments, users), deleting (comments, posts), updating article votes, and filtering, ordering and searching for specific articles.
 
 Test-Driven Development was a core focus of the project, so the project features a comprehensive test suite made with jest, jest-sorted and supertest. The application itself uses express and pg to deliver CRUD operations and the project's primary functionality. Written mainly using JavaScript and SQL.
-
 Try it out using the link 🔗 above!
 
 ## Quick-start for Developers 💻
