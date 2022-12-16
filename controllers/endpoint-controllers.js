@@ -9,6 +9,7 @@ const {
   removeCommentById 
 } = require('../models/db-models');
 const { checkArticleIdExists } = require('../models/articles.comments');
+const { readEndpoints } = require('../models/file-models')
 
 exports.getTopics = (request, response, next) => {
   selectTopics().then(topicData => {
@@ -65,5 +66,11 @@ exports.deleteCommentById = (request, response, next) => {
   const { comment_id : commentId } = request.params;
   removeCommentById(commentId)
     .then(() => response.sendStatus(204))
+    .catch(next);
+}
+
+exports.getEndpointInfo = (request, response, next) => {
+  readEndpoints()
+    .then(availableEndpoints => response.status(200).send({ availableEndpoints }))
     .catch(next);
 }

@@ -584,5 +584,27 @@ describe('api', () => {
               });
     });
   });
+
+  describe('GET /api', () => {
+    test('status: 200, returns available endpoints info', () => {
+      return request(app)
+              .get('/api')
+              .expect(200)
+              .then(({ body }) => {
+                const availableEndpoints = body.availableEndpoints;
+                expect(availableEndpoints).toMatchObject({
+                  "GET /api": expect.any(Object),
+                  "GET /api/topics": expect.any(Object),
+                  "GET /api/articles": expect.any(Object),
+                  "GET /api/articles/:article_id": expect.any(Object),
+                  "GET /api/articles/:article_id/comments": expect.any(Object),
+                  "POST /api/articles/:article_id/comments": expect.any(Object),
+                  "PATCH /api/articles/:article_id": expect.any(Object),
+                  "GET /api/users": expect.any(Object),
+                  "DELETE /api/comments/:comment_id": expect.any(Object),
+                })
+              })
+    });
+  });
 });
 

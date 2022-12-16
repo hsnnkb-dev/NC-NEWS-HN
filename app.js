@@ -7,7 +7,8 @@ const {
   postCommentByArticleId,
   patchArticleVote,
   getUsers,
-  deleteCommentById 
+  deleteCommentById,
+  getEndpointInfo
 } = require('./controllers/endpoint-controllers');
 const { 
   handleServerErrors, 
@@ -28,6 +29,7 @@ app.post('/api/articles/:article_id/comments', postCommentByArticleId);
 app.patch('/api/articles/:article_id', patchArticleVote);
 app.get('/api/users', getUsers);
 app.delete('/api/comments/:comment_id', deleteCommentById);
+app.get('/api', getEndpointInfo)
 
 /* ERROR-HANDLING */
 app.all('*', handle404Errors);

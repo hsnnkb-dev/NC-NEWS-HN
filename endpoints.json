@@ -10,8 +10,9 @@
     }
   },
   "GET /api/articles": {
-    "description": "serves an array of all topics",
-    "queries": ["author", "topic", "sort_by", "order"],
+    "description": "serves an array of all articles",
+    "queries": ["topic", "sort_by", "order"],
+    "examplePath": "/api/articles?topic=football&sort_by=votes&order=desc",
     "exampleResponse": {
       "articles": [
         {
@@ -19,9 +20,119 @@
           "topic": "cooking",
           "author": "weegembump",
           "body": "Text from the article..",
-          "created_at": 1527695953341
+          "created_at": 1527695953341,
+          "comment_count" : "1",
+          "article_id": 1,
+          "votes": 0
+        },
+        {
+          "title": "Bread is creasing",
+          "topic": "cooking",
+          "author": "webump",
+          "body": "Text from the article..",
+          "created_at": 1527977953371,
+          "comment_count" : "2",
+          "article_id": 2,
+          "votes": 6
         }
       ]
     }
+  },
+  "GET /api/articles/:article_id": {
+    "description": "serves an array of a single article",
+    "examplePath" : "/api/articles/1",
+    "exampleResponse": {
+      "article": [
+        {
+          "title": "Seafood substitutions are increasing",
+          "topic": "cooking",
+          "author": "weegembump",
+          "body": "Text from the article..",
+          "created_at": 1527695953341,
+          "comment_count" : "1",
+          "article_id": 1,
+          "votes": 0
+        }
+      ]
+    }
+  },
+  "GET /api/articles/:article_id/comments": {
+    "description": "serves an array of comments (newest-first) that belong to a specified article",
+    "examplePath" : "/api/articles/1/comments",
+    "exampleResponse": {
+      "comments": [
+        {
+          "comment_id": 1,
+          "author": "weegembump",
+          "body": "Perfectly normal comment...",
+          "created_at": 1527695953341,
+          "votes": 0
+        },
+        {
+          "comment_id": 1,
+          "author": "weegwp",
+          "body": "First!",
+          "created_at": 1527695953340,
+          "votes": 1000
+        }
+      ]
+    }
+  },
+  "POST /api/articles/:article_id/comments": {
+    "description": "Updates the database with a new comment, returns new comment",
+    "examplePath" : "/api/articles/1/comments",
+    "exampleRequestBody": { "username": "weegembump", "body": "/nchelp"},
+    "exampleResponse": {
+      "postedComment": [
+        {
+          "comment_id": 1,
+          "author": "weegembump",
+          "body": "/nchelp",
+          "created_at": 1527695953341,
+          "votes": 0
+        }
+      ]
+    }
+  },
+  "PATCH /api/articles/:article_id": {
+    "description": "Increments article votes, returns updated article",
+    "examplePath" : "/api/articles/1",
+    "exampleRequestBody": { "inc_votes": 216 },
+    "exampleResponse": {
+      "upvotedArticle": [
+        {
+          "title": "Seafood substitutions are increasing",
+          "topic": "cooking",
+          "author": "weegembump",
+          "body": "Text from the article..",
+          "created_at": 1527695953341,
+          "comment_count" : "1",
+          "article_id": 1,
+          "votes": 216
+        }
+      ]
+    }
+  },
+  "GET /api/users": {
+    "description": "serves an array of all users",
+    "exampleResponse": {
+      "users": [
+        {
+          "username":"weegembump",
+          "name": "pmubmegeew",
+          "avatar_url": "https://www.healthytherapies.com/wp-content/uploads/2016/06/Lime3.jpg"
+        },
+        {
+          "username":"pmubmegeew",
+          "name": "bob",
+          "avatar_url": "https://www.healthytherapies.com/wp-content/uploads/2016/06/Lime3.jpg"
+        }
+      ]
+    }
+  },
+  "DELETE /api/comments/:comment_id" : {
+    "description": "deletes a specified comment",
+    "examplePath": "/api/comments/3",
+    "exampleResponse": "status: 204, no content"
   }
 }
