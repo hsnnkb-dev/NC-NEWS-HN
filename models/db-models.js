@@ -6,7 +6,7 @@ exports.selectTopics = () => {
 }
 
 exports.selectArticles = (topic = 'all', sortBy = 'created_at', orderBy = 'desc') => {
-  validTopics = ['mitch', 'cats', 'paper'];
+  validTopics = ['mitch', 'cats', 'paper', 'cooking', 'coding', 'football'];
   validSortByColumns = ['title', 'topic', 'author', 'body', 'created_at', 'votes']
   let queryString = `
     SELECT articles.author, title, articles.article_id, topic, articles.created_at, articles.votes, COUNT(comment_id) AS comment_count
