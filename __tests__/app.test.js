@@ -472,13 +472,13 @@ describe('api', () => {
               })
     });
 
-    test('status: 400, malformed request topic doesn\'t exist', () => {
+    test('status: 404, malformed request topic doesn\'t exist', () => {
       return request(app)
               .get('/api/articles?topic=not_a_topic')
-              .expect(400)
+              .expect(404)
               .then(({ body }) => {
                 const message = body.message;
-                expect(message).toBe('Bad Request');
+                expect(message).toBe('Not Found');
               })
     });
 
@@ -502,7 +502,7 @@ describe('api', () => {
               })
     });
 
-    test('status: 400, malformed request, two correct queries and a single query is incorrect', () => {
+    test('status: 404, malformed request, two correct queries and a single query is incorrect', () => {
       return request(app)
               .get('/api/articles?topic=mitch&sort_by=not_a_column&order=asc')
               .expect(400)
@@ -721,6 +721,87 @@ describe('api', () => {
               .then(({ body }) => {
                 const message = body.message;
                 expect(message).toBe('Not Found')
+              })
+    });
+  });
+
+  describe('POST /api/articles', () => {
+    test('status: 201, posts a new article and returns the posted article', () => {
+      const newArticle = { 
+        author: 'icellusedkars', 
+        title: 'my first post', 
+        body: 'I\'m soooooo hungry',
+        topic: 'cats'
+      };
+      return request(app)
+              .post('/api/articles')
+              .send(newArticle)
+              .expect(201)
+              .then(({ body }) => {
+                const postedArticle = body.postedArticle;
+                expect(postedArticle.length).toBe(1);
+                expect(postedArticle[0]).toMatchObject({
+                  author: 'icellusedkars',
+                  title: 'my first post',
+                  article_id: 13,
+                  body: 'I\'m soooooo hungry',
+                  topic: 'cats',
+                  created_at: expect.any(String),
+                  votes: 0,
+                  comment_count: "0"
+                })
+              })
+    });
+
+    test('status: 404, author is not a registered user', () => {
+      const newArticle = { 
+        author: 'not_a_user', 
+        title: 'my first post', 
+        body: 'I\'m soooooo hungry',
+        topic: 'cats'
+      };
+      
+      return request(app)
+              .post('/api/articles')
+              .send(newArticle)
+              .expect(404)
+              .then(({ body }) => {
+                const message = body.message;
+                expect(message).toBe('Not Found')
+              })
+    });
+
+    test('status: 404, topic is not present in database', () => {
+      const newArticle = { 
+        author: 'butter_bridge', 
+        title: 'my first post', 
+        body: 'I\'m soooooo hungry',
+        topic: 'not_a_topic'
+      }
+      
+      return request(app)
+              .post('/api/articles')
+              .send(newArticle)
+              .expect(404)
+              .then(({ body }) => {
+                const message = body.message;
+                expect(message).toBe('Not Found')
+              })
+    });
+
+    test('status: 400, malformed request body missing data', () => {
+      const newArticle = {
+        author: 'icellusedkars', 
+        topic: 'cats'
+      };
+      
+      return request(app)
+              .post('/api/articles')
+              .send(newArticle)
+              .expect(400)
+              .then(({ body }) => {
+                const message = body.message;
+                expect(message).toBe('Bad Request')
               })
     });
   });
