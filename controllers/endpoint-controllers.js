@@ -8,11 +8,11 @@ const {
   selectUsers,
   removeCommentById,
   selectUserById,
-  updateCommentVote
+  updateCommentVote,
+  addArticle
 } = require('../models/db-models');
 const { checkArticleIdExists } = require('../models/articles.comments');
 const { readEndpoints } = require('../models/file-models');
-const { userData } = require('../db/data/test-data');
 
 exports.getTopics = (request, response, next) => {
   selectTopics().then(topicData => {
@@ -91,4 +91,11 @@ exports.patchCommentVote = (request, response, next) => {
   updateCommentVote(commentId, increaseVote)
     .then((commentData) => response.status(200).send({ updatedComment : commentData }))
     .catch(next);
+}
+
+exports.postArticle = (request, response, next) => {
+  const { body: articleBody } = request;
+  addArticle(articleBody)
+    .then(articleData => response.status(201).send({ postedArticle : articleData }))
+    .catch(next)
 }

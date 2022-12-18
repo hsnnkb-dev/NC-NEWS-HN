@@ -1,36 +1,34 @@
 const db = require('../db/connection');
+const { checkExists } = require('./db-utils');
 
 exports.selectTopics = () => {
   const queryString = `SELECT * FROM topics`;
   return db.query(queryString).then(({ rows }) => rows)
 }
 
-exports.selectArticles = (topic = 'all', sortBy = 'created_at', orderBy = 'desc') => {
-  validTopics = ['mitch', 'cats', 'paper', 'cooking', 'coding', 'football'];
-  validSortByColumns = ['title', 'topic', 'author', 'body', 'created_at', 'votes']
+exports.selectArticles = (topic, sortBy = 'created_at', orderBy = 'desc') => {
+  // Checks if the queries are valid, passes status 400 for Bad Request if any are invalid
+  const validSortByColumns = ['title', 'topic', 'author', 'body', 'created_at', 'votes']
+  const isSortyByValid = validSortByColumns.includes(sortBy);
+  const isOrderByValid = (orderBy === 'asc' || orderBy === 'desc');
+  if (!isSortyByValid || !isOrderByValid) { return Promise.reject({ status : 400, message: 'Bad Request' }) }
+  
+  // Build up the queryString after passing query validity
   let queryString = `
     SELECT articles.author, title, articles.article_id, topic, articles.created_at, articles.votes, COUNT(comment_id) AS comment_count
     FROM articles
     LEFT OUTER JOIN comments on articles.article_id = comments.article_id
   `;
-
-  // Checks if the queries are valid, passes status 400 for Bad Request if any are invalid
-  const isTopicValid = validTopics.includes(topic) || topic === 'all'; 
-  const isSortyByValid = validSortByColumns.includes(sortBy);
-  const isOrderByValid = (orderBy === 'asc' || orderBy === 'desc');
-  if (!isTopicValid || !isSortyByValid || !isOrderByValid) {
-    return Promise.reject({ status : 400, message: 'Bad Request' });
-  }
-
-  // Build up the queryString after passing query validity
-  if (topic !== 'all') { queryString += ` WHERE articles.topic = '${topic}'` }
+  if (topic !== undefined) { queryString += ` WHERE articles.topic = '${topic}'` }
   queryString += ` 
     GROUP BY articles.article_id
     ORDER BY articles.${sortBy}
   `;
-  (orderBy === 'asc') ? queryString += ` ASC` : queryString += ` DESC`; 
+  (orderBy === 'asc') ? queryString += ` ASC` : queryString += ` DESC`;
 
-  return db.query(queryString).then(({ rows }) => rows);
+  const promises = [db.query(queryString)];
+  if (topic !== undefined) { promises.push(checkExists('topics', 'slug', topic))}
+  return Promise.all(promises).then(([{ rows }]) => rows);
 }
 
 exports.selectArticleById = (articleId) => {
@@ -114,4 +112,21 @@ exports.updateCommentVote = (commentId, increaseVote) => {
   return db.query(queryString, [increaseVote, commentId]).then(({ rows }) => {
     return (!rows[0]) ? Promise.reject({status: 404, message: 'Not Found'}) : rows 
   })
+}
+
+exports.addArticle = (articleBody) => {
+  const { title, topic, author, body } = articleBody;
+  const queryString = `
+    INSERT INTO articles
+      (title, topic, author, body, votes)
+    VALUES
+      ($1, $2, $3, $4, 0)
+    RETURNING *
+  `;
+  const insertQuery = db.query(queryString, [title, topic, author, body]);
+  const checkTopicExists = checkExists('topics', 'slug', topic);
+  const checkUserExists = checkExists('users', 'username', author);
+  const promises = [insertQuery, checkTopicExists, checkUserExists];
+
+  return Promise.all(promises).then(([{ rows }]) => this.selectArticleById(rows[0].article_id))
 }
