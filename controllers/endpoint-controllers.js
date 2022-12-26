@@ -37,7 +37,8 @@ exports.getArticleById = (request, response, next) => {
 
 exports.getCommentsByArticleId = (request, response, next) => {
   const { article_id: articleId } = request.params;
-  const promises = [selectCommentsByArticleId(articleId), checkArticleIdExists(articleId)];
+  const { limit, p: page } = request.query;
+  const promises = [selectCommentsByArticleId(articleId, limit, page), checkArticleIdExists(articleId)];
   Promise.all(promises)
     .then(([commentsData]) => response.status(200).send({ comments: commentsData }))
     .catch(next)
