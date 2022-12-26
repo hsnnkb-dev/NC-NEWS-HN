@@ -805,5 +805,126 @@ describe('api', () => {
               })
     });
   });
+
+  describe('GET /api/articles? (limit, p), total_count', () => {   
+    test('status: 200, returns 6 articles when passed the limit query with a value', () => {
+      return request(app)
+              .get('/api/articles?limit=6')
+              .expect(200)
+              .expect('Content-Type', 'application/json; charset=utf-8')
+              .then(({ body }) => {
+                const articles = body.articles;
+                expect(articles.length).toBe(6);
+                articles.forEach(article => {
+                  expect(article).toMatchObject({
+                    author: expect.any(String),
+                    title: expect.any(String),
+                    article_id: expect.any(Number),
+                    topic: expect.any(String),
+                    created_at: expect.any(String),
+                    votes: expect.any(Number),
+                    comment_count: expect.any(String)
+                  })
+                })
+              })
+    });
+
+    test('status: 200, returns the last articles, when passed p with value 2 and limit is at default', () => {
+      return request(app)
+              .get('/api/articles?p=2')
+              .expect(200)
+              .expect('Content-Type', 'application/json; charset=utf-8')
+              .then(({ body }) => {
+                const articles = body.articles;
+                expect(articles.length).toBe(2);
+                articles.forEach(article => {
+                  expect(article).toMatchObject({
+                    author: expect.any(String),
+                    title: expect.any(String),
+                    article_id: expect.any(Number),
+                    topic: expect.any(String),
+                    created_at: expect.any(String),
+                    votes: expect.any(Number),
+                    comment_count: expect.any(String)
+                  })
+                })
+              })
+    });
+
+    test('status: 200, returns the middle articles, when passed a page and a limit', () => {
+      return request(app)
+              .get('/api/articles?limit=4&p=2')
+              .expect(200)
+              .expect('Content-Type', 'application/json; charset=utf-8')
+              .then(({ body }) => {
+                const articles = body.articles;
+                expect(articles.length).toBe(4);
+                articles.forEach(article => {
+                  expect(article).toMatchObject({
+                    author: expect.any(String),
+                    title: expect.any(String),
+                    article_id: expect.any(Number),
+                    topic: expect.any(String),
+                    created_at: expect.any(String),
+                    votes: expect.any(Number),
+                    comment_count: expect.any(String)
+                  })
+                })
+              })
+    });
+
+    test('status: 200, returns an empty array when page exceeds number of articles', () => {
+      return request(app)
+              .get('/api/articles?p=200')
+              .expect(200)
+              .expect('Content-Type', 'application/json; charset=utf-8')
+              .then(({ body }) => {
+                const articles = body.articles;
+                expect(articles.length).toBe(0);
+              })
+    });
+
+    test('status: 200, returns response with total_count property', () => {
+      return request(app)
+              .get('/api/articles')
+              .expect(200)
+              .expect('Content-Type', 'application/json; charset=utf-8')
+              .then(({ body }) => {
+                const totalCount = body.total_count;
+                expect(totalCount).toBe(12)
+              })
+    });
+
+    test('status: 200, returns response with total_count property when a filter is applied', () => {
+      return request(app)
+              .get('/api/articles?topic=mitch')
+              .expect(200)
+              .expect('Content-Type', 'application/json; charset=utf-8')
+              .then(({ body }) => {
+                const totalCount = body.total_count;
+                expect(totalCount).toBe(11)
+              })
+    });
+            
+    test('status: 400, when passed a limit query with the wrong value type', () => {
+      return request(app)
+              .get('/api/articles?limit=not_a_number')
+              .expect(400)
+              .then(({ body }) => {
+                const message = body.message;
+                expect(message).toBe('Bad Request')
+              })
+    });
+
+    test('status: 400, when passed a p query with the wrong value type', () => {
+      return request(app)
+              .get('/api/articles?p=not_a_number')
+              .expect(400)
+              .then(({ body }) => {
+                const message = body.message;
+                expect(message).toBe('Bad Request')
+              })
+    });
+  });
 });
 

@@ -6,14 +6,18 @@ exports.selectTopics = () => {
   return db.query(queryString).then(({ rows }) => rows)
 }
 
-exports.selectArticles = (topic, sortBy = 'created_at', orderBy = 'desc') => {
+exports.selectArticles = (topic, sortBy = 'created_at', orderBy = 'desc', limit, page) => {
   // Checks if the queries are valid, passes status 400 for Bad Request if any are invalid
-  const validSortByColumns = ['title', 'topic', 'author', 'body', 'created_at', 'votes']
+  const validSortByColumns = ['title', 'topic', 'author', 'body', 'created_at', 'votes'];
   const isSortyByValid = validSortByColumns.includes(sortBy);
   const isOrderByValid = (orderBy === 'asc' || orderBy === 'desc');
-  if (!isSortyByValid || !isOrderByValid) { return Promise.reject({ status : 400, message: 'Bad Request' }) }
+  const isLimitValid = (limit === undefined || !isNaN(limit));
+  const isPageValid = (page === undefined || !isNaN(page));
+  if (!isSortyByValid || !isOrderByValid || !isLimitValid || !isPageValid) { 
+    return Promise.reject({ status : 400, message: 'Bad Request' }) 
+  }
   
-  // Build up the queryString after passing query validity
+  // Build up the queryString after passing query validition phase
   let queryString = `
     SELECT articles.author, title, articles.article_id, topic, articles.created_at, articles.votes, COUNT(comment_id) AS comment_count
     FROM articles
@@ -25,9 +29,11 @@ exports.selectArticles = (topic, sortBy = 'created_at', orderBy = 'desc') => {
     ORDER BY articles.${sortBy}
   `;
   (orderBy === 'asc') ? queryString += ` ASC` : queryString += ` DESC`;
+  (limit !== undefined) ? queryString += ` LIMIT ${limit}` : limit = 10; 
+  if (page !== undefined) { queryString += ` OFFSET ${(page - 1) * limit}` }
 
   const promises = [db.query(queryString)];
-  if (topic !== undefined) { promises.push(checkExists('topics', 'slug', topic))}
+  if (topic !== undefined) { promises.push(checkExists('topics', 'slug', topic)) }
   return Promise.all(promises).then(([{ rows }]) => rows);
 }
 
