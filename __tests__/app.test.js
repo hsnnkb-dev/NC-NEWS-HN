@@ -981,5 +981,43 @@ describe('api', () => {
               });
     });
   });
+
+  describe('POST /api/topics', () => {
+    test('status: 201, creates a new topic when passed a valid request body', () => {
+      const newTopic = {
+        slug: 'newTopic',
+        description: 'The best topic to ever exist'
+      }
+      
+      return request(app)
+              .post('/api/topics')
+              .send(newTopic)
+              .expect(201)
+              .expect('Content-Type', 'application/json; charset=utf-8')
+              .then(({ body }) => {
+                const postedTopic = body.postedTopic;
+                expect(postedTopic.length).toBe(1);
+                expect(postedTopic[0]).toMatchObject({
+                  slug: expect.any(String),
+                  description: expect.any(String)
+                })
+              });
+    });
+
+    test('status: 400, malformed request body', () => {
+      const newTopic = {
+        description: 'The best topic to ever exist'
+      }
+      
+      return request(app)
+              .post('/api/topics')
+              .send(newTopic)
+              .expect(400)
+              .then(({ body }) => {
+                const message = body.message;
+                expect(message).toBe('Bad Request');
+              });
+    });
+  });
 });
 
