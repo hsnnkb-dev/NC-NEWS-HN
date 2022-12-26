@@ -22,9 +22,9 @@ exports.getTopics = (request, response, next) => {
 }
 
 exports.getArticles = (request, response, next) => {
-  const { topic, sort_by: sortBy, order: orderBy } = request.query;
-  selectArticles(topic, sortBy, orderBy)
-    .then(articlesData => response.status(200).send({ articles: articlesData }))
+  const { topic, sort_by: sortBy, order: orderBy, limit, p: page } = request.query;
+  selectArticles(topic, sortBy, orderBy, limit, page)
+    .then(articlesData => response.status(200).send({ articles: articlesData, total_count: articlesData.length }))
     .catch(next);
 }
 
