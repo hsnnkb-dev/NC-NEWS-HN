@@ -155,3 +155,15 @@ exports.addArticle = (articleBody) => {
 
   return Promise.all(promises).then(([{ rows }]) => this.selectArticleById(rows[0].article_id))
 }
+
+exports.addTopic = (slug, description) => {
+  const queryString = `
+    INSERT INTO topics
+      (slug, description)
+    VALUES
+      ($1, $2)
+    RETURNING *
+  `;
+
+  return db.query(queryString, [slug, description]).then(({ rows }) => rows);
+}

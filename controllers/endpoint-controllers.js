@@ -9,7 +9,8 @@ const {
   removeCommentById,
   selectUserById,
   updateCommentVote,
-  addArticle
+  addArticle,
+  addTopic
 } = require('../models/db-models');
 const { checkArticleIdExists } = require('../models/articles.comments');
 const { readEndpoints } = require('../models/file-models');
@@ -98,5 +99,12 @@ exports.postArticle = (request, response, next) => {
   const { body: articleBody } = request;
   addArticle(articleBody)
     .then(articleData => response.status(201).send({ postedArticle : articleData }))
+    .catch(next)
+}
+
+exports.postTopic =  (request, response, next) => {
+  const { slug, description } = request.body;
+  addTopic(slug, description)
+    .then(topicData => response.status(201).send({ postedTopic : topicData }))
     .catch(next)
 }
