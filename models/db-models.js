@@ -29,8 +29,14 @@ exports.selectArticles = (topic, sortBy = 'created_at', orderBy = 'desc', limit,
     ORDER BY articles.${sortBy}
   `;
   (orderBy === 'asc') ? queryString += ` ASC` : queryString += ` DESC`;
-  (limit !== undefined) ? queryString += ` LIMIT ${limit}` : limit = 10; 
-  if (page !== undefined) { queryString += ` OFFSET ${(page - 1) * limit}` }
+  if (page === undefined && limit !== undefined) {
+    queryString += ` LIMIT ${limit}`
+  } else if (page !== undefined && limit === undefined) {
+    limit = 10;
+    queryString += ` LIMIT ${limit} OFFSET ${(page - 1) * limit}`
+  } else if (page !== undefined && limit !== undefined) {
+    queryString += ` LIMIT ${limit} OFFSET ${(page - 1) * limit}`
+  }
 
   const promises = [db.query(queryString)];
   if (topic !== undefined) { promises.push(checkExists('topics', 'slug', topic)) }
@@ -49,12 +55,25 @@ exports.selectArticleById = (articleId) => {
   return db.query(queryString, [articleId]).then(({ rows }) => (!rows[0]) ? Promise.reject() : rows );
 }
 
-exports.selectCommentsByArticleId = (articleId) => {
-  const queryString = `
+exports.selectCommentsByArticleId = (articleId, limit, page) => {
+  const isValidLimit = (limit === undefined || !isNaN(limit));
+  const isValidPage = (page === undefined || !isNaN(page));
+  if (!isValidLimit || !isValidPage) { return Promise.reject({ status: 400, message: 'Bad Request' }) }
+  let queryString = `
     SELECT * FROM comments
     WHERE article_id = $1
     ORDER BY created_at DESC
   `;
+
+  if (page === undefined && limit !== undefined) {
+    queryString += ` LIMIT ${limit}`
+  } else if (page !== undefined && limit === undefined) {
+    limit = 10;
+    queryString += ` LIMIT ${limit} OFFSET ${(page - 1) * limit}`
+  } else if (page !== undefined && limit !== undefined) {
+    queryString += ` LIMIT ${limit} OFFSET ${(page - 1) * limit}`
+  }
+
   return db.query(queryString, [articleId]).then(({ rows }) => rows);
 }
 

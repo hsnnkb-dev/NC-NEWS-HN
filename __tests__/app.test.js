@@ -926,5 +926,60 @@ describe('api', () => {
               })
     });
   });
+
+  describe('GET /api/articles/:article_id/comments? (limit, p)', () => {
+    test('status: 200, returns the specified number of comments when passed a limit with a value', () => {
+      return request(app)
+              .get('/api/articles/1/comments?limit=3')
+              .expect(200)
+              .expect('Content-Type', 'application/json; charset=utf-8')
+              .then(({ body }) => {
+                const comments = body.comments;
+                expect(comments.length).toBe(3);
+              });
+    });
+
+    test('status: 200, returns the last comments when passed a page query', () => {
+      return request(app)
+              .get('/api/articles/1/comments?p=2')
+              .expect(200)
+              .expect('Content-Type', 'application/json; charset=utf-8')
+              .then(({ body }) => {
+                const comments = body.comments;
+                expect(comments.length).toBe(1);
+              });
+    });
+
+    test('status: 200, returns the middle comments when passed the middle page', () => {
+      return request(app)
+              .get('/api/articles/1/comments?p=4&limit=2')
+              .expect(200)
+              .expect('Content-Type', 'application/json; charset=utf-8')
+              .then(({ body }) => {
+                const comments = body.comments;
+                expect(comments.length).toBe(2);
+              });
+    });
+
+    test('status: 400, when limit value is of the wrong type', () => {
+      return request(app)
+              .get('/api/articles/1/comments?limit=not_a_number')
+              .expect(400)
+              .then(({ body }) => {
+                const message = body.message;
+                expect(message).toBe('Bad Request');
+              });
+    });
+
+    test('status: 400, when page value is of the wrong type', () => {
+      return request(app)
+              .get('/api/articles/1/comments?p=not_a_number')
+              .expect(400)
+              .then(({ body }) => {
+                const message = body.message;
+                expect(message).toBe('Bad Request');
+              });
+    });
+  });
 });
 
