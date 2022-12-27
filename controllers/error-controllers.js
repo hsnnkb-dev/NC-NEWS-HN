@@ -1,3 +1,10 @@
+/*
+ *  Error-handling logic for all endpoints.
+ *  Handles errors to give the appropriate response based on
+ *  the errors origin. Passes to the next middleware until error
+ *  is correctly handled.
+*/
+
 exports.handle404Errors = (request, response, next) => {
   response.status(404).send({ message: 'Not Found'})
 }
