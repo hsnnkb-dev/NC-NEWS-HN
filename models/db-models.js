@@ -112,7 +112,7 @@ exports.removeCommentById = (commentId) => {
     WHERE comment_id = $1
     RETURNING *
   `
-  return db.query(queryString, [commentId]).then(({ rowCount }) => {
+  return db.query(queryString, [commentId]).then(({ rowCount }) => {   
     if (!rowCount) return Promise.reject({ status: 404, message: 'Not Found' });
   });
 }
@@ -166,4 +166,16 @@ exports.addTopic = (slug, description) => {
   `;
 
   return db.query(queryString, [slug, description]).then(({ rows }) => rows);
+}
+
+exports.removeArticle = (articleId) => {
+  const queryString = `
+    DELETE FROM articles
+    WHERE article_id = $1
+    RETURNING *
+  `;
+
+  return db.query(queryString, [articleId]).then(({ rowCount }) => {
+    if (!rowCount) return Promise.reject({ status: 404, message: 'Not Found' });
+  })
 }

@@ -10,7 +10,8 @@ const {
   selectUserById,
   updateCommentVote,
   addArticle,
-  addTopic
+  addTopic,
+  removeArticle
 } = require('../models/db-models');
 const { checkArticleIdExists } = require('../models/articles.comments');
 const { readEndpoints } = require('../models/file-models');
@@ -106,5 +107,12 @@ exports.postTopic =  (request, response, next) => {
   const { slug, description } = request.body;
   addTopic(slug, description)
     .then(topicData => response.status(201).send({ postedTopic : topicData }))
+    .catch(next)
+}
+
+exports.deleteArticle = (request, response, next) => {
+  const { article_id: articleId } = request.params;
+  removeArticle(articleId)
+    .then(() => response.sendStatus(204))
     .catch(next)
 }

@@ -560,7 +560,7 @@ describe('api', () => {
   describe('DELETE /api/comments/:comment_id', () => {
     test('status: 204, returns no content on success', () => {
       return request(app)
-              .delete('/api/comments/1')
+              .delete('/api/comments/3')
               .expect(204);
     });
 
@@ -1017,6 +1017,34 @@ describe('api', () => {
                 const message = body.message;
                 expect(message).toBe('Bad Request');
               });
+    });
+  });
+
+  describe('DELETE /api/articles/:article_id', () => {
+    test('status: 204, no content on success', () => {
+      return request(app)
+              .delete('/api/articles/7')
+              .expect(204)
+    });
+
+    test('status: 400, article_id is of the wrong type', () => {
+      return request(app)
+              .delete('/api/articles/not_a_number')
+              .expect(400)
+              .then(({ body }) => {
+                const message = body.message;
+                expect(message).toBe('Bad Request')
+              })
+    });
+
+    test('status: 404, article_id does not exist', () => {
+      return request(app)
+              .delete('/api/articles/300')
+              .expect(404)
+              .then(({ body }) => {
+                const message = body.message;
+                expect(message).toBe('Not Found')
+              })
     });
   });
 });
