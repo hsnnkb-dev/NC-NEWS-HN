@@ -10,7 +10,7 @@ const apiRouter = require('./routes/api-router');
 const app = express();
 app.use(express.json());
 
-/* ENDPOINTS */
+/* ENDPOINT ROUTING */
 app.use('/api', apiRouter)
 
 /* ERROR-HANDLING */
