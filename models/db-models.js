@@ -1,11 +1,56 @@
 const db = require('../db/connection');
 const { checkExists } = require('./db-utils');
 
-exports.selectTopics = () => {
-  const queryString = `SELECT * FROM topics`;
-  return db.query(queryString).then(({ rows }) => rows)
+/*
+ *  Model logic for all endpoints.
+ *  Handles incoming data and queries to the database. 
+ *  Organised based on INSERT, SELECT, UPDATE and DELETE operations.
+*/
+
+/* ============== INSERT functions ============== */
+exports.addArticle = (articleBody) => {
+  const { title, topic, author, body } = articleBody;
+  const queryString = `
+    INSERT INTO articles
+      (title, topic, author, body, votes)
+    VALUES
+      ($1, $2, $3, $4, 0)
+    RETURNING *
+  `;
+  const insertQuery = db.query(queryString, [title, topic, author, body]);
+  const checkTopicExists = checkExists('topics', 'slug', topic);
+  const checkUserExists = checkExists('users', 'username', author);
+  const promises = [insertQuery, checkTopicExists, checkUserExists];
+
+  return Promise.all(promises).then(([{ rows }]) => this.selectArticleById(rows[0].article_id))
 }
 
+exports.addCommentByArticleId = (articleId, comment) => {
+  const { body, username } = comment;
+  const queryString = `
+    INSERT INTO comments
+      (body, votes, author, article_id)
+    VALUES
+      ($1, 0, $2, $3)
+    RETURNING *
+  `
+  return db.query(queryString, [body, username, articleId]).then(({ rows }) => rows)
+}
+
+exports.addTopic = (slug, description) => {
+  const queryString = `
+    INSERT INTO topics
+      (slug, description)
+    VALUES
+      ($1, $2)
+    RETURNING *
+  `;
+
+  return db.query(queryString, [slug, description]).then(({ rows }) => rows);
+}
+
+
+/* ============== SELECT functions ============== */
 exports.selectArticles = (topic, sortBy = 'created_at', orderBy = 'desc', limit, page) => {
   // Checks if the queries are valid, passes status 400 for Bad Request if any are invalid
   const validSortByColumns = ['title', 'topic', 'author', 'body', 'created_at', 'votes'];
@@ -77,44 +122,14 @@ exports.selectCommentsByArticleId = (articleId, limit, page) => {
   return db.query(queryString, [articleId]).then(({ rows }) => rows);
 }
 
-exports.insertCommentByArticleId = (articleId, comment) => {
-  const { body, username } = comment;
-  const queryString = `
-    INSERT INTO comments
-      (body, votes, author, article_id)
-    VALUES
-      ($1, 0, $2, $3)
-    RETURNING *
-  `
-  return db.query(queryString, [body, username, articleId]).then(({ rows }) => rows)
-}
-
-exports.updateArticleVote = (articleId, increaseVote) => {
-  const queryString = `
-    UPDATE articles
-    SET votes = votes + $1
-    WHERE article_id = $2
-    RETURNING *
-  `;
-  return db.query(queryString, [increaseVote, articleId]).then(({ rows }) => {
-    return (!rows[0]) ? Promise.reject({status: 404, message: 'Not Found'}) : rows;
-  });
+exports.selectTopics = () => {
+  const queryString = `SELECT * FROM topics`;
+  return db.query(queryString).then(({ rows }) => rows)
 }
 
 exports.selectUsers = () => {
   const queryString = `SELECT * FROM users`;
   return db.query(queryString).then(({ rows }) => rows)
-}
-
-exports.removeCommentById = (commentId) => {
-  const queryString = `
-    DELETE FROM comments
-    WHERE comment_id = $1
-    RETURNING *
-  `
-  return db.query(queryString, [commentId]).then(({ rowCount }) => {   
-    if (!rowCount) return Promise.reject({ status: 404, message: 'Not Found' });
-  });
 }
 
 exports.selectUserById = (username) => {
@@ -124,6 +139,20 @@ exports.selectUserById = (username) => {
   `
   return db.query(queryString, [username]).then(({ rows }) => {
     return (!rows[0]) ? Promise.reject({status: 400, message: 'Bad Request'}) : rows
+  });
+}
+
+
+/* ============== UPDATE functions ============== */
+exports.updateArticleVote = (articleId, increaseVote) => {
+  const queryString = `
+    UPDATE articles
+    SET votes = votes + $1
+    WHERE article_id = $2
+    RETURNING *
+  `;
+  return db.query(queryString, [increaseVote, articleId]).then(({ rows }) => {
+    return (!rows[0]) ? Promise.reject({status: 404, message: 'Not Found'}) : rows;
   });
 }
 
@@ -139,35 +168,8 @@ exports.updateCommentVote = (commentId, increaseVote) => {
   })
 }
 
-exports.addArticle = (articleBody) => {
-  const { title, topic, author, body } = articleBody;
-  const queryString = `
-    INSERT INTO articles
-      (title, topic, author, body, votes)
-    VALUES
-      ($1, $2, $3, $4, 0)
-    RETURNING *
-  `;
-  const insertQuery = db.query(queryString, [title, topic, author, body]);
-  const checkTopicExists = checkExists('topics', 'slug', topic);
-  const checkUserExists = checkExists('users', 'username', author);
-  const promises = [insertQuery, checkTopicExists, checkUserExists];
 
-  return Promise.all(promises).then(([{ rows }]) => this.selectArticleById(rows[0].article_id))
-}
-
-exports.addTopic = (slug, description) => {
-  const queryString = `
-    INSERT INTO topics
-      (slug, description)
-    VALUES
-      ($1, $2)
-    RETURNING *
-  `;
-
-  return db.query(queryString, [slug, description]).then(({ rows }) => rows);
-}
-
+/* ============== DELETE functions ============== */
 exports.removeArticle = (articleId) => {
   const queryString = `
     DELETE FROM articles
@@ -178,4 +180,15 @@ exports.removeArticle = (articleId) => {
   return db.query(queryString, [articleId]).then(({ rowCount }) => {
     if (!rowCount) return Promise.reject({ status: 404, message: 'Not Found' });
   })
+}
+
+exports.removeCommentById = (commentId) => {
+  const queryString = `
+    DELETE FROM comments
+    WHERE comment_id = $1
+    RETURNING *
+  `
+  return db.query(queryString, [commentId]).then(({ rowCount }) => {   
+    if (!rowCount) return Promise.reject({ status: 404, message: 'Not Found' });
+  });
 }

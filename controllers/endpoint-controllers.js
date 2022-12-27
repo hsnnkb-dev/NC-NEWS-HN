@@ -3,7 +3,7 @@ const {
   selectArticles, 
   selectArticleById, 
   selectCommentsByArticleId, 
-  insertCommentByArticleId, 
+  addCommentByArticleId, 
   updateArticleVote, 
   selectUsers,
   removeCommentById,
@@ -33,7 +33,7 @@ exports.postArticle = (request, response, next) => {
 exports.postCommentByArticleId = (request, response, next) => {
   const { body: comment } = request;
   const { article_id: articleId } = request.params;
-  insertCommentByArticleId(articleId, comment)
+  addCommentByArticleId(articleId, comment)
     .then(postedComment => response.status(201).send({ postedComment }))
     .catch(next)
 }
