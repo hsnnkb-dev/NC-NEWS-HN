@@ -266,8 +266,8 @@ describe('api', () => {
               .expect(200)
               .expect('Content-Type', 'application/json; charset=utf-8')
               .then(({ body }) => {
-                const upvotedArticle = body.upvotedArticle;
-                expect(upvotedArticle[0]).toMatchObject({
+                const updatedArticle = body.updatedArticle;
+                expect(updatedArticle[0]).toMatchObject({
                   article_id: 2,
                   title: expect.any(String),
                   topic: expect.any(String),
@@ -287,8 +287,8 @@ describe('api', () => {
               .expect(200)
               .expect('Content-Type', 'application/json; charset=utf-8')
               .then(({ body }) => {
-                const upvotedArticle = body.upvotedArticle;
-                expect(upvotedArticle[0]).toMatchObject({
+                const updatedArticle = body.updatedArticle;
+                expect(updatedArticle[0]).toMatchObject({
                   article_id: 2,
                   title: expect.any(String),
                   topic: expect.any(String),
