@@ -14,5 +14,5 @@ jobs:
       - name: Install Dependencies
         run: npm install
       - name: Test Util Functions
-        run: npm run test-utils
+        run: npm run test
 
