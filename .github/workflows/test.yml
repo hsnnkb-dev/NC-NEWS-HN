@@ -1,7 +1,7 @@
 name: Test utils and endpoints
 
 on:
-  pull-request:
+  pull_request:
     branches:
       - main
 
@@ -16,3 +16,30 @@ jobs:
       - name: Test Util Functions
         run: npm run test-utils
 
+  test-app:
+    needs: test-utils
+    runs-on: ubuntu-latest
+    steps:
+      - name: Clone & Checkout Repository
+        uses: actions/checkout@v3
+      - name: Setup PSQL
+        uses: harmon758/postgresql-action@v1
+        with:
+          postgresql db: test_db
+          postgresql user: TESTER
+          postgresql password: pass
+      - name: Install Dependencies
+        run: npm install
+      - name: Test App Functions
+        run: PGDATABASE=test_db PGUSER=TESTER PGPASSWORD=pass npm run test-app
+
+  test-app-live-db:
+    needs: test-app
+    runs-on: ubuntu-latest
+    steps:
+      - name: Clone & Checkout Repository
+        uses: actions/checkout@v3      
+      - name: Install Dependencies
+        run: npm install
+      - name: Test App with Live Database
+        run: NODE_ENV=production DATABASE_URL=${{ secrets.DATABASE_URL }} npm run test-app
