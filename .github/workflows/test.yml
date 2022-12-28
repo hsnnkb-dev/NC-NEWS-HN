@@ -14,5 +14,22 @@ jobs:
       - name: Install Dependencies
         run: npm install
       - name: Test Util Functions
-        run: npm run test
+        run: npm run test-utils
+
+  test-app:
+    needs: test-utils
+    runs-on: ubuntu-latest
+    steps:
+      - name: Clone & Checkout Repository
+        uses: actions/checkout@v3
+      - name: Setup PSQL
+        uses: harmon758/postgresql-action@v1
+        with:
+          postgresql db: test_db
+          postgresql user: TESTER
+          postgresql password: pass
+      - name: Install Dependencies
+        run: npm install
+      - name: Test App Functions
+        run: PGDATABASE=test_db PGUSER=TESTER PGPASSWORD=pass npm run test-app
 
